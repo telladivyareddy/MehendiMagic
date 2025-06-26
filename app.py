@@ -172,14 +172,6 @@ def admin_delete_user():
     return redirect(url_for('login'))
 
 
-@app.route('/admin_dashboard')
-def admin_dashboard():
-    if 'user' in session and session['user']['role'] == 'admin':
-        users = get_all_users()
-        appointments = get_all_appointments()
-        artist_stats = get_artist_booking_counts()
-        return render_template('admin_dashboard.html', users=users, appointments=appointments, artist_stats=artist_stats)
-    return redirect(url_for('login'))
 
 
 if __name__ == '__main__':
