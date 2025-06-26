@@ -1,2 +1,91 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Client Dashboard</title>
+    <style>
+        table {
+            border-collapse: collapse;
+            margin-bottom: 30px;
+            width: 100%;
+        }
+        th, td {
+            border: 1px solid #888;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #eee;
+        }
+        form {
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+
 <h2>Welcome, {{ user.name }} (Client)</h2>
+
 <a href="{{ url_for('logout') }}">Logout</a>
+
+<hr>
+
+<h3>🔍 Search Artists</h3>
+<form method="GET" action="{{ url_for('client_dashboard') }}">
+    <input name="location" placeholder="Enter location">
+    <input name="date" type="date">
+    <button type="submit">Search</button>
+</form>
+
+{% if artists %}
+    <h3>🎨 Available Mehendi Artists</h3>
+    <table>
+        <tr>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Location</th>
+            <th>Available Dates</th>
+            <th>Action</th>
+        </tr>
+        {% for artist in artists %}
+        <tr>
+            <td>{{ artist.name }}</td>
+            <td>{{ artist.email }}</td>
+            <td>{{ artist.location }}</td>
+            <td>{{ artist.available_dates | join(', ') }}</td>
+            <td>
+                <form method="POST" action="{{ url_for('book_appointment') }}">
+                    <input type="hidden" name="artist_email" value="{{ artist.email }}">
+                    <input type="date" name="date" required>
+                    <input type="time" name="time" required>
+                    <button type="submit">Book</button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+{% else %}
+    <p>No artists found. Try searching with different filters.</p>
+{% endif %}
+
+<hr>
+
+<h3>📅 Your Appointments</h3>
+<table>
+    <tr>
+        <th>Artist</th>
+        <th>Date</th>
+        <th>Time</th>
+        <th>Status</th>
+    </tr>
+    {% for appointment in client_appointments %}
+    <tr>
+        <td>{{ appointment.artist_email }}</td>
+        <td>{{ appointment.date }}</td>
+        <td>{{ appointment.time }}</td>
+        <td>{{ appointment.status }}</td>
+    </tr>
+    {% endfor %}
+</table>
+
+</body>
+</html>

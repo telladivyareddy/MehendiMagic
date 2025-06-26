@@ -9,6 +9,9 @@ from models.db import (
 )
 
 from models.sns import send_email_notification
+import uuid
+from datetime import datetime
+
 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'
@@ -22,17 +25,17 @@ def register():
     if request.method == 'POST':
         name = request.form['name']
         email = request.form['email']
-        password = generate_password_hash(request.form['password'])
+        password = request.form['password']
         role = request.form['role']
+        location = request.form.get('location')
+        available_dates = request.form.get('available_dates')
 
-        existing_user = get_user_by_email(email)
-        if existing_user:
-            return "User already exists!"
+        hashed_password = hashlib.sha256(password.encode()).hexdigest()
 
-        save_user(name, email, password, role)
+        save_user(email, name, hashed_password, role, location, available_dates)
         return redirect(url_for('login'))
-
     return render_template('register.html')
+
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -52,58 +55,74 @@ def login():
 
     return render_template('login.html')
 
-@app.route('/client_dashboard')
+@app.route('/client_dashboard', methods=['GET'])
 def client_dashboard():
-    if 'user' in session and session['user']['role'] == 'client':
-        return render_template('client_dashboard.html', user=session['user'])
-    return redirect(url_for('login'))
+    if 'user' not in session or session['user']['role'] != 'client':
+        return redirect(url_for('login'))
+
+    location = request.args.get('location')
+    date = request.args.get('date')
+
+    all_users = get_all_users()
+    artists = [u for u in all_users if u['role'] == 'artist']
+
+    if location:
+        artists = [a for a in artists if a.get('location', '').lower() == location.lower()]
+    if date:
+        artists = [a for a in artists if 'available_dates' in a and date in a['available_dates']]
+
+    client_email = session['user']['email']
+    appointments = get_appointments_for_client(client_email)
+
+    return render_template('client_dashboard.html', user=session['user'], artists=artists, client_appointments=appointments)
+
 
 @app.route('/artist_dashboard')
 def artist_dashboard():
     if 'user' in session and session['user']['role'] == 'artist':
-        return render_template('artist_dashboard.html', user=session['user'])
+        email = session['user']['email']
+        appointments = get_appointments_for_artist(email)
+        return render_template('artist_dashboard.html', user=session['user'], appointments=appointments)
     return redirect(url_for('login'))
+
+
 
 @app.route('/logout')
 def logout():
     session.clear()
     return redirect(url_for('home'))
 
-@app.route('/book', methods=['POST'])
+ 
+@app.route('/book_appointment', methods=['POST'])
 def book_appointment():
-    if 'user' in session and session['user']['role'] == 'client':
-        artist_email = request.form['artist_email']
-        date = request.form['date']
-        time = request.form['time']
-        client_email = session['user']['email']
+    if 'user' not in session or session['user']['role'] != 'client':
+        return redirect(url_for('login'))
 
-        appointment_id = save_appointment(artist_email, client_email, date, time)
+    client_email = session['user']['email']
+    artist_email = request.form['artist_email']
+    date = request.form['date']
+    time = request.form['time']
 
-        client = get_user_by_email(client_email)
-        artist = get_user_by_email(artist_email)
+    # Generate a unique ID for the appointment
+    appointment_id = str(uuid.uuid4())
+    status = 'pending'
 
-        subject = "🎨 MehendiMagic Appointment Booked"
-        message = (
-            f"✅ New Appointment Confirmed!\n\n"
-            f"Client: {client['name']} ({client['email']})\n"
-            f"Artist: {artist['name']} ({artist['email']})\n"
-            f"Date: {date}\nTime: {time}\n"
-            f"Appointment ID: {appointment_id}\n\n"
-            f"Thanks,\nMehendiMagic Team"
-        )
+    # Save the appointment in DynamoDB
+    appointments_table.put_item(Item={
+        'appointment_id': appointment_id,
+        'client_email': client_email,
+        'artist_email': artist_email,
+        'date': date,
+        'time': time,
+        'status': status
+    })
 
-        send_email_notification(subject, message)
+    # Send SNS notification (optional)
+    send_booking_confirmation(client_email, artist_email, date, time)
 
-        return f"✅ Appointment booked! Notification sent via SNS email."
-    
-    return redirect(url_for('login'))
+    return redirect(url_for('client_dashboard'))
 
-@app.route('/artist_dashboard')
-def artist_dashboard():
-    if 'user' in session and session['user']['role'] == 'artist':
-        appointments = get_appointments_for_artist(session['user']['email'])
-        return render_template('artist_dashboard.html', user=session['user'], appointments=appointments)
-    return redirect(url_for('login'))
+
 
 @app.route('/update_status', methods=['POST'])
 def update_status():
@@ -125,8 +144,10 @@ def admin_dashboard():
     if 'user' in session and session['user']['role'] == 'admin':
         users = get_all_users()
         appointments = get_all_appointments()
-        return render_template('admin_dashboard.html', users=users, appointments=appointments)
+        artist_stats = get_artist_booking_counts()
+        return render_template('admin_dashboard.html', users=users, appointments=appointments, artist_stats=artist_stats)
     return redirect(url_for('login'))
+
 
 @app.route('/admin_add_user', methods=['POST'])
 def admin_add_user():
