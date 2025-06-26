@@ -1,0 +1,29 @@
+<h2>Welcome, {{ user.name }} (Artist)</h2>
+
+<h3>Your Bookings</h3>
+<table border="1">
+    <tr>
+        <th>Client</th><th>Date</th><th>Time</th><th>Status</th><th>Actions</th>
+    </tr>
+    {% for appointment in appointments %}
+    <tr>
+        <td>{{ appointment.client_email }}</td>
+        <td>{{ appointment.date }}</td>
+        <td>{{ appointment.time }}</td>
+        <td>{{ appointment.status }}</td>
+        <td>
+            {% if appointment.status == 'pending' %}
+            <form action="{{ url_for('update_status') }}" method="POST" style="display:inline;">
+                <input type="hidden" name="appointment_id" value="{{ appointment.appointment_id }}">
+                <button name="status" value="accepted">Accept</button>
+                <button name="status" value="rejected">Reject</button>
+            </form>
+            {% else %}
+            {{ appointment.status.capitalize() }}
+            {% endif %}
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+
+<a href="{{ url_for('logout') }}">Logout</a>
