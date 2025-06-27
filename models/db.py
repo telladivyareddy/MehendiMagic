@@ -28,11 +28,11 @@ def get_user_by_email(email):
     return response.get('Item')
 
 def get_appointments_for_artist(artist_email):
-    response = appointments_table.scan(
-        FilterExpression="artist_email = :email",
-        ExpressionAttributeValues={":email": artist_email}
-    )
-    return response['Items']
+    response = appointments_table.scan()
+    all_appointments = response['Items']
+    artist_appointments = [a for a in all_appointments if a['artist_email'] == artist_email]
+    return artist_appointments
+
 
 def save_appointment(artist_email, client_email, date, time):
     appointment_id = str(uuid.uuid4())
