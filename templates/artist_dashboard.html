@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Artist Dashboard</title>
+    <style>
+        table {
+            border-collapse: collapse;
+            margin-top: 20px;
+            width: 100%;
+        }
+        th, td {
+            border: 1px solid #888;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #eee;
+        }
+    </style>
+</head>
+<body>
+
+<h2>Welcome, {{ user.name }} (Artist)</h2>
+<a href="{{ url_for('logout') }}">Logout</a>
+
+<hr>
+
+<h3>📅 Your Appointments</h3>
+<table>
+    <tr>
+        <th>Client Email</th>
+        <th>Date</th>
+        <th>Time</th>
+        <th>Status</th>
+        <th>Actions</th>
+    </tr>
+    {% for appointment in appointments %}
+    <tr>
+        <td>{{ appointment.client_email }}</td>
+        <td>{{ appointment.date }}</td>
+        <td>{{ appointment.time }}</td>
+        <td>{{ appointment.status }}</td>
+        <td>
+            {% if appointment.status == 'pending' %}
+                <!-- Accept/Reject -->
+                <form method="POST" action="{{ url_for('update_status') }}" style="display:inline;">
+                    <input type="hidden" name="appointment_id" value="{{ appointment.appointment_id }}">
+                    <input type="hidden" name="new_status" value="accepted">
+                    <button type="submit">✅ Accept</button>
+                </form>
+                <form method="POST" action="{{ url_for('update_status') }}" style="display:inline;">
+                    <input type="hidden" name="appointment_id" value="{{ appointment.appointment_id }}">
+                    <input type="hidden" name="new_status" value="rejected">
+                    <button type="submit">❌ Reject</button>
+                </form>
+            {% elif appointment.status == 'accepted' %}
+                <!-- Reschedule -->
+                <form method="POST" action="{{ url_for('reschedule') }}">
+                    <input type="hidden" name="appointment_id" value="{{ appointment.appointment_id }}">
+                    <input type="date" name="new_date" required>
+                    <input type="time" name="new_time" required>
+                    <button type="submit">🔄 Reschedule</button>
+                </form>
+            {% endif %}
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+
+</body>
+</html>

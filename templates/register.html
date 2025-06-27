@@ -1,0 +1,30 @@
+<h2>Register</h2>
+
+<form method="POST">
+    <input name="name" placeholder="Name" required><br>
+    <input name="email" placeholder="Email" type="email" required><br>
+    <input name="password" placeholder="Password" type="password" required><br>
+
+    <select name="role" id="role-select" required onchange="toggleArtistFields()">
+        <option value="">Select Role</option>
+        <option value="client">Client</option>
+        <option value="artist">Artist</option>
+    </select><br>
+
+    <!-- Artist-specific fields -->
+    <div id="artist-fields" style="display:none;">
+        <input name="location" placeholder="Location (for artists only)"><br>
+        <input name="available_dates" placeholder="Available dates (comma-separated)"><br>
+    </div>
+
+    <button type="submit">Register</button>
+</form>
+
+<script>
+function toggleArtistFields() {
+    const role = document.getElementById("role-select").value;
+    document.getElementById("artist-fields").style.display = (role === "artist") ? "block" : "none";
+}
+</script>
+
+/Users/telladivyareddy/Desktop/mehendi_magic
