@@ -10,7 +10,7 @@ from models.db import (
     get_appointments_for_client
 )
 
-from models.sns import send_email_notification
+from models.sns import send_email_notification,send_booking_confirmation
 import uuid
 import hashlib
 from datetime import datetime
