@@ -68,3 +68,7 @@ def get_appointments_for_client(client_email):
         ExpressionAttributeValues={':email': client_email}
     )
     return response['Items']
+
+def get_appointments_for_client(client_email):
+    response = appointments_table.scan()
+    return [appt for appt in response.get('Items', []) if appt['client_email'] == client_email]
