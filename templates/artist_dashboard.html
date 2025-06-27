@@ -1,135 +1,213 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Artist Dashboard</title>
+    <title>Artist Dashboard | MehendiMagic</title>
     <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: linear-gradient(to right, #fce3ff, #fffafc);
+            margin: 0;
+            padding: 40px;
+            color: #333;
+        }
+
+        h2 {
+            color: #872175;
+            font-size: 28px;
+        }
+
+        a {
+            float: right;
+            text-decoration: none;
+            color: #a8326d;
+            font-weight: bold;
+        }
+
+        h3 {
+            color: #5a0b55;
+            margin-top: 50px;
+            background-color: #f9d4ee;
+            padding: 10px;
+            border-radius: 8px;
+            display: inline-block;
+        }
+
         table {
             border-collapse: collapse;
-            margin-top: 20px;
             width: 100%;
+            margin-top: 20px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 5px 12px rgba(0,0,0,0.08);
         }
+
         th, td {
-            border: 1px solid #888;
-            padding: 8px;
+            border: 1px solid #ddd;
+            padding: 12px;
             text-align: left;
         }
+
         th {
-            background-color: #eee;
+            background-color: #f5d5f0;
+            color: #4a044e;
         }
-        .section {
-            margin-top: 40px;
+
+        td {
+            background-color: #fffdfd;
         }
+
         form {
             margin: 5px 0;
         }
+
+        input, button {
+            padding: 6px 10px;
+            margin: 4px 0;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+            font-family: inherit;
+        }
+
+        input[type="text"], input[type="date"], input[type="time"] {
+            width: 160px;
+        }
+
+        button {
+            background-color: #a8326d;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        button:hover {
+            background-color: #c4437c;
+        }
+
+        .section {
+            margin-top: 50px;
+        }
+
+        .status-badge {
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-weight: bold;
+            color: white;
+        }
+
+        .status-pending { background-color: #f0ad4e; }
+        .status-accepted { background-color: #5cb85c; }
+        .status-completed { background-color: #6f42c1; }
+        .status-rejected { background-color: #d9534f; }
     </style>
 </head>
 <body>
 
-<h2>Welcome, {{ user.name }} (Artist)</h2>
-<a href="{{ url_for('logout') }}">Logout</a>
+    <h2>Welcome, {{ user.name }} 👩‍🎨 (Artist)</h2>
+    <a href="{{ url_for('logout') }}">Logout</a>
 
-<hr>
-
-<!-- SECTION 1: Appointments -->
-<h3>📅 Your Appointments</h3>
-<table>
-    <tr>
-        <th>Client Email</th>
-        <th>Client Location</th>
-        <th>Date</th>
-        <th>Time</th>
-        <th>Status</th>
-        <th>Actions</th>
-    </tr>
-    {% for appointment in appointments %}
-    <tr>
-        <td>{{ appointment.client_email }}</td>
-        <td>{{ appointment.client_location or 'Not Provided' }}</td>
-        <td>{{ appointment.date }}</td>
-        <td>{{ appointment.time }}</td>
-        <td>{{ appointment.status }}</td>
-        <td>
-            {% if appointment.status == 'pending' %}
-                <!-- Accept/Reject -->
-                <form method="POST" action="{{ url_for('update_status') }}" style="display:inline;">
-                    <input type="hidden" name="appointment_id" value="{{ appointment.appointment_id }}">
-                    <input type="hidden" name="new_status" value="accepted">
-                    <button type="submit">✅ Accept</button>
-                </form>
-                <form method="POST" action="{{ url_for('update_status') }}" style="display:inline;">
-                    <input type="hidden" name="appointment_id" value="{{ appointment.appointment_id }}">
-                    <input type="hidden" name="new_status" value="rejected">
-                    <button type="submit">❌ Reject</button>
-                </form>
-            {% elif appointment.status == 'accepted' %}
-                <!-- Reschedule -->
-                <form method="POST" action="{{ url_for('reschedule') }}" style="display:inline;">
-                    <input type="hidden" name="appointment_id" value="{{ appointment.appointment_id }}">
-                    <input type="date" name="new_date" required>
-                    <input type="time" name="new_time" required>
-                    <button type="submit">🔄 Reschedule</button>
-                </form>
-                <!-- Mark as Completed -->
-                <form method="POST" action="{{ url_for('update_status') }}" style="display:inline;">
-                    <input type="hidden" name="appointment_id" value="{{ appointment.appointment_id }}">
-                    <input type="hidden" name="new_status" value="completed">
-                    <button type="submit">✅ Mark as Done</button>
-                </form>
-            {% elif appointment.status == 'completed' %}
-                ✅ Service Completed
-            {% else %}
-                -
-            {% endif %}
-        </td>
-    </tr>
-    {% endfor %}
-</table>
-
-<!-- SECTION 2: Set Available Dates -->
-<div class="section">
-    <h3>📆 Set Available Dates</h3>
-    <form method="POST" action="{{ url_for('update_availability') }}">
-        <label>Enter available dates (comma-separated):</label><br>
-        <input type="text" name="available_dates" placeholder="2025-06-25, 2025-06-28" required style="width: 80%;">
-        <button type="submit">📌 Update Availability</button>
-    </form>
-</div>
-
-<!-- SECTION 3: Client Queries -->
-<div class="section">
-    <h3>💬 Client Queries</h3>
-    {% if queries %}
-        <table>
-            <tr>
-                <th>Client Email</th>
-                <th>Message</th>
-                <th>Reply</th>
-                <th>Action</th>
-            </tr>
-            {% for query in queries %}
-            <tr>
-                <td>{{ query.client_email }}</td>
-                <td>{{ query.message }}</td>
-                <td>{{ query.reply or "No reply yet" }}</td>
-                <td>
-                    {% if not query.reply %}
-                    <form method="POST" action="{{ url_for('reply_query') }}">
-                        <input type="hidden" name="query_id" value="{{ query.query_id }}">
-                        <input type="text" name="reply" placeholder="Your reply" required>
-                        <button type="submit">Reply</button>
+    <!-- SECTION 1: Appointments -->
+    <h3>📅 Your Appointments</h3>
+    <table>
+        <tr>
+            <th>Client Email</th>
+            <th>Client Location</th>
+            <th>Date</th>
+            <th>Time</th>
+            <th>Status</th>
+            <th>Actions</th>
+        </tr>
+        {% for appointment in appointments %}
+        <tr>
+            <td>{{ appointment.client_email }}</td>
+            <td>{{ appointment.client_location or 'Not Provided' }}</td>
+            <td>{{ appointment.date }}</td>
+            <td>{{ appointment.time }}</td>
+            <td>
+                <span class="status-badge status-{{ appointment.status }}">
+                    {{ appointment.status.capitalize() }}
+                </span>
+            </td>
+            <td>
+                {% if appointment.status == 'pending' %}
+                    <!-- Accept/Reject -->
+                    <form method="POST" action="{{ url_for('update_status') }}" style="display:inline;">
+                        <input type="hidden" name="appointment_id" value="{{ appointment.appointment_id }}">
+                        <input type="hidden" name="new_status" value="accepted">
+                        <button type="submit">✅ Accept</button>
                     </form>
-                    {% else %}
-                        ✅
-                    {% endif %}
-                </td>
-            </tr>
-            {% endfor %}
-        </table>
-    {% else %}
-        <p>No queries yet.</p>
-    {% endif %}
-</div>
+                    <form method="POST" action="{{ url_for('update_status') }}" style="display:inline;">
+                        <input type="hidden" name="appointment_id" value="{{ appointment.appointment_id }}">
+                        <input type="hidden" name="new_status" value="rejected">
+                        <button type="submit">❌ Reject</button>
+                    </form>
+                {% elif appointment.status == 'accepted' %}
+                    <!-- Reschedule + Done -->
+                    <form method="POST" action="{{ url_for('reschedule') }}" style="display:inline;">
+                        <input type="hidden" name="appointment_id" value="{{ appointment.appointment_id }}">
+                        <input type="date" name="new_date" required>
+                        <input type="time" name="new_time" required>
+                        <button type="submit">🔄 Reschedule</button>
+                    </form>
+                    <form method="POST" action="{{ url_for('update_status') }}" style="display:inline;">
+                        <input type="hidden" name="appointment_id" value="{{ appointment.appointment_id }}">
+                        <input type="hidden" name="new_status" value="completed">
+                        <button type="submit">✅ Done</button>
+                    </form>
+                {% elif appointment.status == 'completed' %}
+                    ✅ Service Completed
+                {% else %}
+                    -
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    <!-- SECTION 2: Set Available Dates -->
+    <div class="section">
+        <h3>📆 Set Available Dates</h3>
+        <form method="POST" action="{{ url_for('update_availability') }}">
+            <label>Enter available dates (comma-separated):</label><br>
+            <input type="text" name="available_dates" placeholder="2025-06-25, 2025-06-28" style="width: 60%;" required>
+            <button type="submit">📌 Update</button>
+        </form>
+    </div>
+
+    <!-- SECTION 3: Client Queries -->
+    <div class="section">
+        <h3>💬 Client Queries</h3>
+        {% if queries %}
+            <table>
+                <tr>
+                    <th>Client Email</th>
+                    <th>Message</th>
+                    <th>Reply</th>
+                    <th>Action</th>
+                </tr>
+                {% for query in queries %}
+                <tr>
+                    <td>{{ query.client_email }}</td>
+                    <td>{{ query.message }}</td>
+                    <td>{{ query.reply or "No reply yet" }}</td>
+                    <td>
+                        {% if not query.reply %}
+                        <form method="POST" action="{{ url_for('reply_query') }}">
+                            <input type="hidden" name="query_id" value="{{ query.query_id }}">
+                            <input type="text" name="reply" placeholder="Your reply" required>
+                            <button type="submit">Reply</button>
+                        </form>
+                        {% else %}
+                            ✅ Replied
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </table>
+        {% else %}
+            <p>No queries yet.</p>
+        {% endif %}
+    </div>
 
 </body>
 </html>

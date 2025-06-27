@@ -3,99 +3,182 @@
 <head>
     <title>Admin Dashboard - MehendiMagic</title>
     <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: linear-gradient(to right, #fff0f7, #fce3ff);
+            margin: 0;
+            padding: 40px;
+            color: #333;
+        }
+
+        h2 {
+            color: #7b1c6d;
+            font-size: 28px;
+        }
+
+        h3 {
+            color: #5c144d;
+            margin-top: 40px;
+            background-color: #f9d4ee;
+            padding: 10px;
+            border-radius: 8px;
+            display: inline-block;
+        }
+
         table {
             border-collapse: collapse;
-            margin-bottom: 30px;
             width: 100%;
+            margin-top: 20px;
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.06);
         }
+
         th, td {
-            border: 1px solid #888;
-            padding: 8px;
+            border: 1px solid #ddd;
+            padding: 12px;
             text-align: left;
         }
+
         th {
-            background-color: #ddd;
+            background-color: #f5d5f0;
+            color: #4a044e;
         }
+
+        td {
+            background-color: #fffdfd;
+        }
+
         form {
             margin: 10px 0;
         }
+
+        input, select, button {
+            padding: 8px 10px;
+            margin: 6px 0;
+            font-family: inherit;
+            border-radius: 6px;
+            border: 1px solid #bbb;
+        }
+
+        button {
+            background-color: #a8326d;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #c4437c;
+        }
+
+        .delete-btn {
+            background-color: #e84343;
+        }
+
+        .delete-btn:hover {
+            background-color: #ff6b6b;
+        }
+
+        a {
+            display: inline-block;
+            margin-top: 20px;
+            text-decoration: none;
+            color: #a8326d;
+            font-weight: bold;
+        }
+
+        .form-box {
+            margin-top: 20px;
+            padding: 20px;
+            background-color: #fff7fb;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            max-width: 500px;
+        }
+
     </style>
 </head>
 <body>
 
-<h2>Welcome, Admin {{ user.name }}</h2>
+    <h2>Welcome, Admin {{ user.name }}</h2>
 
-<h3>👤 All Users</h3>
-<table>
-  <tr><th>Name</th><th>Email</th><th>Role</th><th>Actions</th></tr>
-  {% for u in users %}
-  <tr>
-    <td>{{ u.name }}</td>
-    <td>{{ u.email }}</td>
-    <td>{{ u.role }}</td>
-    <td>
-      {% if u.email != user.email %}
-      <form action="{{ url_for('admin_delete_user') }}" method="POST" style="display:inline;">
-        <input type="hidden" name="email" value="{{ u.email }}">
-        <button type="submit">🗑️ Delete</button>
+    <!-- Users -->
+    <h3>👤 All Users</h3>
+    <table>
+      <tr><th>Name</th><th>Email</th><th>Role</th><th>Actions</th></tr>
+      {% for u in users %}
+      <tr>
+        <td>{{ u.name }}</td>
+        <td>{{ u.email }}</td>
+        <td>{{ u.role }}</td>
+        <td>
+          {% if u.email != user.email %}
+          <form action="{{ url_for('admin_delete_user') }}" method="POST" style="display:inline;">
+            <input type="hidden" name="email" value="{{ u.email }}">
+            <button type="submit" class="delete-btn">🗑️ Delete</button>
+          </form>
+          {% else %}
+          (You)
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </table>
+
+    <!-- Appointments -->
+    <h3>📅 All Appointments</h3>
+    <table>
+      <tr>
+        <th>Client</th><th>Artist</th><th>Date</th><th>Time</th><th>Status</th>
+      </tr>
+      {% for a in appointments %}
+      <tr>
+        <td>{{ a.client_email }}</td>
+        <td>{{ a.artist_email }}</td>
+        <td>{{ a.date }}</td>
+        <td>{{ a.time }}</td>
+        <td>{{ a.status }}</td>
+      </tr>
+      {% endfor %}
+    </table>
+
+    <!-- Booking Stats -->
+    <h3>📈 Artist Booking Stats</h3>
+    <table>
+      <tr><th>Artist Email</th><th>Total Bookings</th></tr>
+      {% for artist, count in artist_stats.items() %}
+      <tr>
+        <td>{{ artist }}</td>
+        <td>{{ count }}</td>
+      </tr>
+      {% endfor %}
+    </table>
+
+    <!-- Add New User -->
+    <h3>➕ Add New User</h3>
+    <div class="form-box">
+      <form method="POST" action="{{ url_for('admin_add_user') }}">
+          <label>Name:</label><br>
+          <input name="name" placeholder="Name" required><br>
+          
+          <label>Email:</label><br>
+          <input name="email" placeholder="Email" required><br>
+          
+          <label>Password:</label><br>
+          <input name="password" placeholder="Password" required type="password"><br>
+          
+          <label>Role:</label><br>
+          <select name="role">
+              <option value="client">Client</option>
+              <option value="artist">Artist</option>
+          </select><br><br>
+          
+          <button type="submit">Add User</button>
       </form>
-      {% else %}
-      (You)
-      {% endif %}
-    </td>
-  </tr>
-  {% endfor %}
-</table>
+    </div>
 
-<h3>📅 All Appointments</h3>
-<table>
-  <tr>
-    <th>Client</th><th>Artist</th><th>Date</th><th>Time</th><th>Status</th>
-  </tr>
-  {% for a in appointments %}
-  <tr>
-    <td>{{ a.client_email }}</td>
-    <td>{{ a.artist_email }}</td>
-    <td>{{ a.date }}</td>
-    <td>{{ a.time }}</td>
-    <td>{{ a.status }}</td>
-  </tr>
-  {% endfor %}
-</table>
-
-<h3>📈 Artist Booking Stats</h3>
-<table>
-  <tr><th>Artist Email</th><th>Total Bookings</th></tr>
-  {% for artist, count in artist_stats.items() %}
-  <tr>
-    <td>{{ artist }}</td>
-    <td>{{ count }}</td>
-  </tr>
-  {% endfor %}
-</table>
-
-<h3>➕ Add New User</h3>
-<form method="POST" action="{{ url_for('admin_add_user') }}">
-    <label>Name:</label><br>
-    <input name="name" placeholder="Name" required><br>
-    
-    <label>Email:</label><br>
-    <input name="email" placeholder="Email" required><br>
-    
-    <label>Password:</label><br>
-    <input name="password" placeholder="Password" required type="password"><br>
-    
-    <label>Role:</label><br>
-    <select name="role">
-        <option value="client">Client</option>
-        <option value="artist">Artist</option>
-    </select><br><br>
-    
-    <button type="submit">Add User</button>
-</form>
-
-<br>
-<a href="{{ url_for('logout') }}">Logout</a>
+    <a href="{{ url_for('logout') }}">🚪 Logout</a>
 
 </body>
 </html>

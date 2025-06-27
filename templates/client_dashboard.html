@@ -1,126 +1,212 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Client Dashboard</title>
+    <title>Client Dashboard | MehendiMagic</title>
     <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: linear-gradient(to right, #fff0f5, #fce3ff);
+            margin: 0;
+            padding: 40px;
+            color: #333;
+        }
+
+        h2 {
+            color: #b92d6d;
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        h3 {
+            color: #6b217e;
+            margin-top: 40px;
+        }
+
+        a {
+            color: #b92d6d;
+            text-decoration: none;
+            font-weight: bold;
+            float: right;
+            margin-top: -40px;
+        }
+
         table {
             border-collapse: collapse;
-            margin-bottom: 30px;
             width: 100%;
+            margin-top: 15px;
+            background-color: #fff;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 6px 15px rgba(0,0,0,0.08);
         }
+
         th, td {
-            border: 1px solid #888;
-            padding: 8px;
+            border: 1px solid #ddd;
+            padding: 12px;
             text-align: left;
         }
+
         th {
-            background-color: #eee;
+            background-color: #f5d5f0;
+            color: #4a044e;
         }
+
+        td {
+            background-color: #fffdfd;
+        }
+
         form {
-            margin-bottom: 20px;
+            margin: 0;
+        }
+
+        input, textarea, select, button {
+            font-family: inherit;
+            padding: 8px;
+            margin-top: 6px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+        }
+
+        button {
+            background-color: #b92d6d;
+            color: white;
+            border: none;
+            padding: 10px 18px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #d24f86;
+        }
+
+        .section {
+            margin-top: 50px;
+        }
+
+        .message-box {
+            width: 100%;
+        }
+
+        .search-form input {
+            margin-right: 10px;
+        }
+
+        .no-results {
+            margin-top: 20px;
+            font-style: italic;
+            color: #999;
+        }
+
+        .section-title {
+            background-color: #fde9f7;
+            padding: 12px;
+            border-radius: 8px;
+            display: inline-block;
         }
     </style>
 </head>
 <body>
 
-<h2>Welcome, {{ user.name }} (Client)</h2>
-<a href="{{ url_for('logout') }}">Logout</a>
+    <h2>Welcome, {{ user.name }} 💁‍♀️ (Client)</h2>
+    <a href="{{ url_for('logout') }}">Logout</a>
 
-<hr>
+    <div class="section">
+        <h3 class="section-title">🔍 Search Artists</h3>
+        <form method="GET" action="{{ url_for('client_dashboard') }}" class="search-form">
+            <input name="location" placeholder="Enter location">
+            <input name="date" type="date">
+            <button type="submit">Search</button>
+        </form>
 
-<h3>🔍 Search Artists</h3>
-<form method="GET" action="{{ url_for('client_dashboard') }}">
-    <input name="location" placeholder="Enter location">
-    <input name="date" type="date">
-    <button type="submit">Search</button>
-</form>
+        {% if artists %}
+            <table>
+                <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Location</th>
+                    <th>Available Dates</th>
+                    <th>Book</th>
+                    <th>Ask a Query</th>
+                </tr>
+                {% for artist in artists %}
+                <tr>
+                    <td>{{ artist.name }}</td>
+                    <td>{{ artist.email }}</td>
+                    <td>{{ artist.location }}</td>
+                    <td>
+                        {% if artist.available_dates %}
+                            {{ artist.available_dates | join(', ') }}
+                        {% else %}
+                            Not Provided
+                        {% endif %}
+                    </td>
+                    <td>
+                        <form method="POST" action="{{ url_for('book_appointment') }}">
+                            <input type="hidden" name="artist_email" value="{{ artist.email }}">
+                            <input type="date" name="date" required>
+                            <input type="time" name="time" required>
+                            <button type="submit">Book</button>
+                        </form>
+                    </td>
+                    <td>
+                        <form method="POST" action="{{ url_for('ask_query') }}">
+                            <input type="hidden" name="artist_email" value="{{ artist.email }}">
+                            <textarea name="message" rows="2" cols="20" class="message-box" placeholder="Type your query" required></textarea>
+                            <button type="submit">Send</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </table>
+        {% else %}
+            <p class="no-results">No artists found. Try searching with different filters.</p>
+        {% endif %}
+    </div>
 
-{% if artists %}
-    <h3>🎨 Available Mehendi Artists</h3>
-    <table>
-        <tr>
-            <th>Name</th>
-            <th>Email</th>
-            <th>Location</th>
-            <th>Available Dates</th>
-            <th>Book</th>
-            <th>Ask a Query</th>
-        </tr>
-        {% for artist in artists %}
-        <tr>
-            <td>{{ artist.name }}</td>
-            <td>{{ artist.email }}</td>
-            <td>{{ artist.location }}</td>
-            <td>
-                {% if artist.available_dates %}
-                    {{ artist.available_dates | join(', ') }}
-                {% else %}
-                    Not Provided
-                {% endif %}
-            </td>
-            <td>
-                <form method="POST" action="{{ url_for('book_appointment') }}">
-                    <input type="hidden" name="artist_email" value="{{ artist.email }}">
-                    <input type="date" name="date" required>
-                    <input type="time" name="time" required>
-                    <button type="submit">Book</button>
-                </form>
-            </td>
-            <td>
-                <form method="POST" action="{{ url_for('ask_query') }}">
-                    <input type="hidden" name="artist_email" value="{{ artist.email }}">
-                    <textarea name="message" placeholder="Type your query" rows="2" cols="20" required></textarea>
-                    <button type="submit">Send</button>
-                </form>
-            </td>
-        </tr>
-        {% endfor %}
-    </table>
-{% else %}
-    <p>No artists found. Try searching with different filters.</p>
-{% endif %}
+    <div class="section">
+        <h3 class="section-title">📅 Your Appointments</h3>
+        <table>
+            <tr>
+                <th>Artist</th>
+                <th>Date</th>
+                <th>Time</th>
+                <th>Status</th>
+            </tr>
+            {% for appointment in client_appointments %}
+            <tr>
+                <td>{{ appointment.artist_email }}</td>
+                <td>{{ appointment.date }}</td>
+                <td>{{ appointment.time }}</td>
+                <td>{{ appointment.status }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
 
-<hr>
-
-<h3>📅 Your Appointments</h3>
-<table>
-    <tr>
-        <th>Artist</th>
-        <th>Date</th>
-        <th>Time</th>
-        <th>Status</th>
-    </tr>
-    {% for appointment in client_appointments %}
-    <tr>
-        <td>{{ appointment.artist_email }}</td>
-        <td>{{ appointment.date }}</td>
-        <td>{{ appointment.time }}</td>
-        <td>{{ appointment.status }}</td>
-    </tr>
-    {% endfor %}
-</table>
-
-<hr>
-
-<h3>💬 Your Queries to Artists</h3>
-{% if queries %}
-<table>
-    <tr>
-        <th>Artist Email</th>
-        <th>Your Question</th>
-        <th>Artist Reply</th>
-    </tr>
-    {% for query in queries %}
-    <tr>
-        <td>{{ query.artist_email }}</td>
-        <td>{{ query.message }}</td>
-        <td>{{ query.reply or "No reply yet" }}</td>
-    </tr>
-    {% endfor %}
-</table>
-{% else %}
-<p>You haven't asked any queries yet.</p>
-{% endif %}
+    <div class="section">
+        <h3 class="section-title">💬 Your Queries to Artists</h3>
+        {% if queries %}
+        <table>
+            <tr>
+                <th>Artist Email</th>
+                <th>Your Question</th>
+                <th>Artist Reply</th>
+            </tr>
+            {% for query in queries %}
+            <tr>
+                <td>{{ query.artist_email }}</td>
+                <td>{{ query.message }}</td>
+                <td>{{ query.reply or "No reply yet" }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+        {% else %}
+        <p class="no-results">You haven't asked any queries yet.</p>
+        {% endif %}
+    </div>
 
 </body>
 </html>
