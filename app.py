@@ -212,7 +212,7 @@ def admin_dashboard():
     queries = response.get('Items', [])
 
     return render_template('admin_dashboard.html',
-                           users=users,
+                           users=session['user'],
                            appointments=appointments,
                            artist_stats=artist_stats,
                            queries=queries)
