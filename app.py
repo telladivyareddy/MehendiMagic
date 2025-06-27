@@ -8,7 +8,8 @@ from models.db import (
     get_artist_booking_counts,
     get_all_users,
     get_appointments_for_client,
-    appointments_table
+    appointments_table,
+    queries_table
     
 )
 
