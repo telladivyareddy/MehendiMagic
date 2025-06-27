@@ -193,6 +193,22 @@ def admin_delete_user():
         return redirect(url_for('admin_dashboard'))
     return redirect(url_for('login'))
 
+@app.route('/reschedule', methods=['POST'])
+def reschedule():
+    if 'user' not in session or session['user']['role'] != 'artist':
+        return redirect(url_for('login'))
+
+    appointment_id = request.form['appointment_id']
+    new_date = request.form['new_date']
+    new_time = request.form['new_time']
+
+    appointments_table.update_item(
+        Key={'appointment_id': appointment_id},
+        UpdateExpression='SET #d = :date, #t = :time',
+        ExpressionAttributeNames={'#d': 'date', '#t': 'time'},
+        ExpressionAttributeValues={':date': new_date, ':time': new_time}
+    )
+    return redirect(url_for('artist_dashboard'))
 
 
 
