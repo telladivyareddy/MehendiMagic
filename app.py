@@ -37,22 +37,24 @@ def register():
         return redirect(url_for('login'))
     return render_template('register.html')
 
-
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
         email = request.form['email']
         password = request.form['password']
+        hashed_password = hashlib.sha256(password.encode()).hexdigest()
 
         user = get_user_by_email(email)
-        if not user or not check_password_hash(user['password'], password):
+        if not user or user['password'] != hashed_password:
             return "Invalid credentials!"
 
         session['user'] = user
         if user['role'] == 'client':
             return redirect(url_for('client_dashboard'))
-        else:
+        elif user['role'] == 'artist':
             return redirect(url_for('artist_dashboard'))
+        elif user['role'] == 'admin':
+            return redirect(url_for('admin_dashboard'))
 
     return render_template('login.html')
 
