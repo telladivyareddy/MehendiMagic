@@ -45,18 +45,16 @@ def get_appointments_for_artist(artist_email):
 
 
 
-def save_appointment(artist_email, client_email, date, time):
-    appointment_id = str(uuid.uuid4())
-    appointments_table.put_item(
-        Item={
-            'appointment_id': appointment_id,
-            'artist_email': artist_email,
-            'client_email': client_email,
-            'date': date,
-            'time': time,
-            'status': 'pending'
-        }
-    )
+def save_appointment(client_email, artist_email, date, time, status, appointment_id):
+    appointments_table.put_item(Item={
+        'appointment_id': appointment_id,
+        'client_email': client_email,
+        'artist_email': artist_email,
+        'date': date,
+        'time': time,
+        'status': status
+    })
+
     return appointment_id
 
 def get_all_users():

@@ -88,15 +88,9 @@ def client_dashboard():
 def artist_dashboard():
     if 'user' in session and session['user']['role'] == 'artist':
         artist_email = session['user']['email']
-        print("LOGGED IN ARTIST EMAIL:", artist_email)  # DEBUG
-
         appointments = get_appointments_for_artist(artist_email)
-        print("FOUND APPOINTMENTS:", appointments)  # DEBUG
-
         return render_template('artist_dashboard.html', user=session['user'], appointments=appointments)
-
     return redirect(url_for('login'))
-
 
 
 
@@ -106,24 +100,27 @@ def logout():
     return redirect(url_for('home'))
 
 
-
 @app.route('/book_appointment', methods=['POST'])
 def book_appointment():
     if 'user' not in session or session['user']['role'] != 'client':
         return redirect(url_for('login'))
 
-    client_email = session['user']['email']
-    artist_email = request.form['artist_email']
+    client_email = session['user']['email']  # Logged-in client
+    artist_email = request.form['artist_email']  # Selected artist
     date = request.form['date']
     time = request.form['time']
 
-    # Save appointment using helper function
-    save_appointment(client_email, artist_email, date, time)
+    appointment_id = str(uuid.uuid4())
+    status = 'pending'
 
-    # Optional: Send SNS notification
+    # Save appointment
+    save_appointment(client_email, artist_email, date, time, status, appointment_id)
+
+    # Optional: send SNS notification
     send_booking_confirmation(client_email, artist_email, date, time)
 
     return redirect(url_for('client_dashboard'))
+
 
 
 
