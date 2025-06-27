@@ -97,7 +97,8 @@ def logout():
     session.clear()
     return redirect(url_for('home'))
 
- 
+
+
 @app.route('/book_appointment', methods=['POST'])
 def book_appointment():
     if 'user' not in session or session['user']['role'] != 'client':
@@ -108,24 +109,14 @@ def book_appointment():
     date = request.form['date']
     time = request.form['time']
 
-    # Generate a unique ID for the appointment
-    appointment_id = str(uuid.uuid4())
-    status = 'pending'
+    # Save appointment using helper function
+    save_appointment(client_email, artist_email, date, time)
 
-    # Save the appointment in DynamoDB
-    appointments_table.put_item(Item={
-        'appointment_id': appointment_id,
-        'client_email': client_email,
-        'artist_email': artist_email,
-        'date': date,
-        'time': time,
-        'status': status
-    })
-
-    # Send SNS notification (optional)
+    # Optional: Send SNS notification
     send_booking_confirmation(client_email, artist_email, date, time)
 
     return redirect(url_for('client_dashboard'))
+
 
 
 
