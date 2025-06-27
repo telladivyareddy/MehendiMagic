@@ -7,6 +7,7 @@ import uuid
 dynamodb = boto3.resource('dynamodb', region_name='us-east-1')  # or your region
 users_table = dynamodb.Table('Users')
 appointments_table = dynamodb.Table('Appointments')
+queries_table = dynamodb.Table('queries_table')
 
 def save_user(email, name, password, role, location=None, available_dates=None):
     item = {
