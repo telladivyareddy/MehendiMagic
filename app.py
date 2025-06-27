@@ -85,7 +85,7 @@ def client_dashboard():
 @app.route('/artist_dashboard')
 def artist_dashboard():
     if 'user' in session and session['user']['role'] == 'artist':
-        email = session['user']['email']
+        artist_email = session['user']['email']
         appointments = get_appointments_for_artist(artist_email)
         return render_template('artist_dashboard.html', user=session['user'], appointments=appointments)
     return redirect(url_for('login'))
