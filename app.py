@@ -169,7 +169,7 @@ def admin_dashboard():
         users = get_all_users()
         appointments = get_all_appointments()
         artist_stats = get_artist_booking_counts()
-        return render_template('admin_dashboard.html', users=users, appointments=appointments, artist_stats=artist_stats)
+        return render_template('admin_dashboard.html', users=users, appointments=appointments, artist_stats=artist_stats, queries=queries)
     return redirect(url_for('login'))
 
 
