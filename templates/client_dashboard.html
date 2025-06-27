@@ -24,7 +24,6 @@
 <body>
 
 <h2>Welcome, {{ user.name }} (Client)</h2>
-
 <a href="{{ url_for('logout') }}">Logout</a>
 
 <hr>
@@ -44,20 +43,34 @@
             <th>Email</th>
             <th>Location</th>
             <th>Available Dates</th>
-            <th>Action</th>
+            <th>Book</th>
+            <th>Ask a Query</th>
         </tr>
         {% for artist in artists %}
         <tr>
             <td>{{ artist.name }}</td>
             <td>{{ artist.email }}</td>
             <td>{{ artist.location }}</td>
-            <td>{{ artist.available_dates | join(', ') }}</td>
+            <td>
+                {% if artist.available_dates %}
+                    {{ artist.available_dates | join(', ') }}
+                {% else %}
+                    Not Provided
+                {% endif %}
+            </td>
             <td>
                 <form method="POST" action="{{ url_for('book_appointment') }}">
                     <input type="hidden" name="artist_email" value="{{ artist.email }}">
                     <input type="date" name="date" required>
                     <input type="time" name="time" required>
                     <button type="submit">Book</button>
+                </form>
+            </td>
+            <td>
+                <form method="POST" action="{{ url_for('ask_query') }}">
+                    <input type="hidden" name="artist_email" value="{{ artist.email }}">
+                    <textarea name="question" placeholder="Type your query" rows="2" cols="20" required></textarea><br>
+                    <button type="submit">Send</button>
                 </form>
             </td>
         </tr>
