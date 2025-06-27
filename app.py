@@ -89,9 +89,15 @@ def artist_dashboard():
     if 'user' in session and session['user']['role'] == 'artist':
         artist_email = session['user']['email']
         appointments = get_appointments_for_artist(artist_email)
+
+        # Get all clients' data
+        from models.db import get_user_by_email
+        for appt in appointments:
+            client = get_user_by_email(appt['client_email'])
+            appt['client_location'] = client.get('location', 'Not Provided')
+
         return render_template('artist_dashboard.html', user=session['user'], appointments=appointments)
     return redirect(url_for('login'))
-
 
 
 @app.route('/logout')
@@ -117,28 +123,43 @@ def book_appointment():
     save_appointment(client_email, artist_email, date, time, status, appointment_id)
 
     # Optional: send SNS notification
-    send_booking_confirmation(client_email, artist_email, date, time)
+    #send_booking_confirmation(client_email, artist_email, date, time)
 
     return redirect(url_for('client_dashboard'))
 
 
-
-
+from models.sns import send_booking_confirmation
 
 @app.route('/update_status', methods=['POST'])
 def update_status():
     if 'user' in session and session['user']['role'] == 'artist':
         appointment_id = request.form['appointment_id']
-        new_status = request.form['status']
+        new_status = request.form['new_status']
 
+        # Fetch the appointment details (for email content)
+        response = appointments_table.get_item(Key={'appointment_id': appointment_id})
+        appointment = response.get('Item', {})
+
+        # Update the status
         appointments_table.update_item(
             Key={'appointment_id': appointment_id},
             UpdateExpression='SET #s = :status',
             ExpressionAttributeNames={'#s': 'status'},
             ExpressionAttributeValues={':status': new_status}
         )
+
+        # ✅ Only send confirmation email if accepted
+        if new_status == 'accepted':
+            send_booking_confirmation(
+                appointment['client_email'],
+                appointment['artist_email'],
+                appointment['date'],
+                appointment['time']
+            )
+
         return redirect(url_for('artist_dashboard'))
     return redirect(url_for('login'))
+
 
 @app.route('/admin_dashboard')
 def admin_dashboard():

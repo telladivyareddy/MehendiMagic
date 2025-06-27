@@ -29,6 +29,7 @@
 <table>
     <tr>
         <th>Client Email</th>
+        <th>Client Location</th>
         <th>Date</th>
         <th>Time</th>
         <th>Status</th>
@@ -37,6 +38,7 @@
     {% for appointment in appointments %}
     <tr>
         <td>{{ appointment.client_email }}</td>
+        <td>{{ appointment.client_location or 'Not Provided' }}</td>
         <td>{{ appointment.date }}</td>
         <td>{{ appointment.time }}</td>
         <td>{{ appointment.status }}</td>
