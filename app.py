@@ -9,7 +9,8 @@ from models.db import (
     get_all_users,
     get_appointments_for_client,
     appointments_table,
-    queries_table
+    queries_table,
+    users_table
     
 )
 
