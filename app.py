@@ -88,9 +88,15 @@ def client_dashboard():
 def artist_dashboard():
     if 'user' in session and session['user']['role'] == 'artist':
         artist_email = session['user']['email']
+        print("LOGGED IN ARTIST EMAIL:", artist_email)  # DEBUG
+
         appointments = get_appointments_for_artist(artist_email)
+        print("FOUND APPOINTMENTS:", appointments)  # DEBUG
+
         return render_template('artist_dashboard.html', user=session['user'], appointments=appointments)
+
     return redirect(url_for('login'))
+
 
 
 
