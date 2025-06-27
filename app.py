@@ -91,6 +91,7 @@ def artist_dashboard():
     if 'user' in session and session['user']['role'] == 'artist':
         artist_email = session['user']['email']
         appointments = get_appointments_for_artist(artist_email)
+        queries = get_queries_for_artist(artist_email)  # 👈 Add this
 
         # Get all clients' data
         from models.db import get_user_by_email
@@ -98,8 +99,9 @@ def artist_dashboard():
             client = get_user_by_email(appt['client_email'])
             appt['client_location'] = client.get('location', 'Not Provided')
 
-        return render_template('artist_dashboard.html', user=session['user'], appointments=appointments)
+        return render_template('artist_dashboard.html', user=session['user'], appointments=appointments, queries=queries)
     return redirect(url_for('login'))
+
 
 
 @app.route('/logout')
