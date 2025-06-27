@@ -31,7 +31,8 @@ def get_appointments_for_artist(artist_email):
     response = appointments_table.scan()
     all_appointments = response['Items']
     artist_appointments = [
-        a for a in all_appointments if a.get('artist_email', '').lower() == artist_email.lower()
+        a for a in all_appointments
+        if a.get('artist_email', '').strip().lower() == artist_email.strip().lower()
     ]
     return artist_appointments
 
