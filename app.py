@@ -5,7 +5,8 @@ from models.db import (
     get_user_by_email,
     save_appointment,
     get_appointments_for_artist,
-    get_artist_booking_counts
+    get_artist_booking_counts,
+    get_all_users
 )
 
 from models.sns import send_email_notification
