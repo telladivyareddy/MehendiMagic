@@ -190,29 +190,22 @@ def update_status():
 @app.route('/admin_dashboard')
 def admin_dashboard():
     if 'user' not in session or session['user']['role'] != 'admin':
-        return redirect(url_for('login'))
+        return redirect(url_for('login'))  # Or show an error page
 
-    # Get all users
-    response = users_table.scan()
-    users = response.get('Items', [])
+    user = session['user']  # ✅ Store user
+    users = users_table.scan().get('Items', [])
+    appointments = appointments_table.scan().get('Items', [])
+    queries = queries_table.scan().get('Items', [])
 
-    # Get all appointments
-    response = appointments_table.scan()
-    appointments = response.get('Items', [])
-
-    # Artist booking stats
+    # Calculate artist booking stats
     artist_stats = {}
     for appt in appointments:
-        if appt['status'] != 'rejected':
-            artist = appt['artist_email']
-            artist_stats[artist] = artist_stats.get(artist, 0) + 1
-
-    # ✅ Fetch all client queries
-    response = queries_table.scan()
-    queries = response.get('Items', [])
+        artist_email = appt['artist_email']
+        artist_stats[artist_email] = artist_stats.get(artist_email, 0) + 1
 
     return render_template('admin_dashboard.html',
-                           users=session['user'],
+                           user=user,  # ✅ Pass user to template
+                           users=users,
                            appointments=appointments,
                            artist_stats=artist_stats,
                            queries=queries)
