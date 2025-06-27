@@ -10,6 +10,7 @@ from models.db import (
 
 from models.sns import send_email_notification
 import uuid
+import hashlib
 from datetime import datetime
 
 
