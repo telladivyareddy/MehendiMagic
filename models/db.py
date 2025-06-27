@@ -30,10 +30,17 @@ def get_user_by_email(email):
 def get_appointments_for_artist(artist_email):
     response = appointments_table.scan()
     all_appointments = response['Items']
+
+    print("🔍 Scanned Appointments:", all_appointments)
+    print("🎯 Logged-in artist email:", artist_email.strip().lower())
+
+    # Compare in a case-insensitive, whitespace-trimmed way
     artist_appointments = [
         a for a in all_appointments
         if a.get('artist_email', '').strip().lower() == artist_email.strip().lower()
     ]
+
+    print("✅ Matched Appointments:", artist_appointments)
     return artist_appointments
 
 
