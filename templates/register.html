@@ -1,24 +1,76 @@
-<h2>Register</h2>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Register - Mehendi Magic</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: #f8f9fa;
+            font-family: 'Segoe UI', sans-serif;
+        }
+        .container {
+            max-width: 500px;
+            margin-top: 60px;
+            padding: 30px;
+            background: #ffffff;
+            border-radius: 15px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        h2 {
+            text-align: center;
+            color: #4d4d4d;
+            margin-bottom: 25px;
+        }
+        .btn-mehendi {
+            background-color: #8fbc8f;
+            color: white;
+        }
+        .btn-mehendi:hover {
+            background-color: #78a678;
+        }
+        label {
+            margin-top: 10px;
+            font-weight: 500;
+        }
+        .form-select, .form-control {
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
 
-<form method="POST">
-    <input name="name" placeholder="Name" required><br>
-    <input name="email" placeholder="Email" type="email" required><br>
-    <input name="password" placeholder="Password" type="password" required><br>
+<div class="container">
+    <h2>Register for <span style="color: #8fbc8f;">Mehendi Magic</span></h2>
 
-    <select name="role" id="role-select" required onchange="toggleArtistFields()">
-        <option value="">Select Role</option>
-        <option value="client">Client</option>
-        <option value="artist">Artist</option>
-    </select><br>
+    <form method="POST">
+        <label>Name</label>
+        <input name="name" class="form-control" placeholder="Enter your name" required>
 
-    <!-- Artist-specific fields -->
-    <div id="artist-fields" style="display:none;">
-        <input name="location" placeholder="Location (for artists only)"><br>
-        <input name="available_dates" placeholder="Available dates (comma-separated)"><br>
-    </div>
+        <label>Email</label>
+        <input name="email" class="form-control" type="email" placeholder="you@example.com" required>
 
-    <button type="submit">Register</button>
-</form>
+        <label>Password</label>
+        <input name="password" class="form-control" type="password" placeholder="Choose a password" required>
+
+        <label>Role</label>
+        <select name="role" id="role-select" class="form-select" required onchange="toggleArtistFields()">
+            <option value="">Select Role</option>
+            <option value="client">Client</option>
+            <option value="artist">Artist</option>
+        </select>
+
+        <!-- Artist-specific fields -->
+        <div id="artist-fields" style="display:none;">
+            <label>Location</label>
+            <input name="location" class="form-control" placeholder="Enter your location">
+
+            <label>Available Dates</label>
+            <input name="available_dates" class="form-control" placeholder="e.g. 2025-07-01, 2025-07-05">
+        </div>
+
+        <button type="submit" class="btn btn-mehendi w-100 mt-3">Register</button>
+    </form>
+</div>
 
 <script>
 function toggleArtistFields() {
@@ -27,4 +79,7 @@ function toggleArtistFields() {
 }
 </script>
 
-/Users/telladivyareddy/Desktop/mehendi_magic
+</body>
+</html>
+
+ 
