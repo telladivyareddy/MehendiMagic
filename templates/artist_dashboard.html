@@ -16,6 +16,9 @@
         th {
             background-color: #eee;
         }
+        .section {
+            margin-top: 40px;
+        }
     </style>
 </head>
 <body>
@@ -25,6 +28,7 @@
 
 <hr>
 
+<!-- SECTION 1: Appointments -->
 <h3>📅 Your Appointments</h3>
 <table>
     <tr>
@@ -68,6 +72,47 @@
     </tr>
     {% endfor %}
 </table>
+
+<!-- SECTION 2: Set Available Dates -->
+<div class="section">
+    <h3>📆 Set Available Dates</h3>
+    <form method="POST" action="{{ url_for('update_availability') }}">
+        <label>Select Dates:</label><br>
+        <input type="date" name="available_dates" required>
+        <button type="submit">📌 Update Availability</button>
+    </form>
+</div>
+
+<!-- SECTION 3: Client Queries -->
+<div class="section">
+    <h3>💬 Client Queries</h3>
+    {% if queries %}
+        <table>
+            <tr>
+                <th>Client Email</th>
+                <th>Message</th>
+                <th>Reply</th>
+                <th>Action</th>
+            </tr>
+            {% for query in queries %}
+            <tr>
+                <td>{{ query.client_email }}</td>
+                <td>{{ query.message }}</td>
+                <td>{{ query.reply or "No reply yet" }}</td>
+                <td>
+                    <form method="POST" action="{{ url_for('reply_query') }}">
+                        <input type="hidden" name="query_id" value="{{ query.query_id }}">
+                        <input type="text" name="reply" placeholder="Your reply" required>
+                        <button type="submit">Reply</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+    {% else %}
+        <p>No queries yet.</p>
+    {% endif %}
+</div>
 
 </body>
 </html>

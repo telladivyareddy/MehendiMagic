@@ -210,6 +210,64 @@ def reschedule():
     )
     return redirect(url_for('artist_dashboard'))
 
+@app.route('/update_availability', methods=['POST'])
+def update_availability():
+    if 'user' not in session or session['user']['role'] != 'artist':
+        return redirect(url_for('login'))
+
+    artist_email = session['user']['email']
+    raw_dates = request.form['available_dates']
+    dates = [d.strip() for d in raw_dates.split(',') if d.strip()]
+
+    users_table.update_item(
+        Key={'email': artist_email},
+        UpdateExpression='SET available_dates = :dates',
+        ExpressionAttributeValues={':dates': dates}
+    )
+
+    # Refresh session with updated data (optional)
+    updated_user = get_user_by_email(artist_email)
+    session['user'] = updated_user
+
+    return redirect(url_for('artist_dashboard'))
+
+@app.route('/ask_query', methods=['POST'])
+def ask_query():
+    if 'user' not in session or session['user']['role'] != 'client':
+        return redirect(url_for('login'))
+
+    query_id = str(uuid.uuid4())
+    client_email = session['user']['email']
+    artist_email = request.form['artist_email']
+    message = request.form['message']
+    timestamp = datetime.now().isoformat()
+
+    queries_table.put_item(Item={
+        'query_id': query_id,
+        'client_email': client_email,
+        'artist_email': artist_email,
+        'message': message,
+        'reply': '',
+        'timestamp': timestamp
+    })
+
+    return redirect(url_for('client_dashboard'))
+
+@app.route('/reply_query', methods=['POST'])
+def reply_query():
+    if 'user' not in session or session['user']['role'] != 'artist':
+        return redirect(url_for('login'))
+
+    query_id = request.form['query_id']
+    reply = request.form['reply']
+
+    queries_table.update_item(
+        Key={'query_id': query_id},
+        UpdateExpression='SET reply = :reply',
+        ExpressionAttributeValues={':reply': reply}
+    )
+    return redirect(url_for('artist_dashboard'))
+
 
 
 if __name__ == '__main__':
