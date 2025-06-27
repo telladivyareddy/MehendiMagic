@@ -43,14 +43,6 @@ def register():
         return redirect(url_for('login'))
     return render_template('register.html')
 
-def get_artists_by_filter(location, date):
-    response = users_table.scan(
-        FilterExpression=Attr('role').eq('artist') & 
-                         Attr('location').eq(location) & 
-                         Attr('available_dates').contains(date)
-    )
-    return response.get('Items', [])
-
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
@@ -71,6 +63,14 @@ def login():
             return redirect(url_for('admin_dashboard'))
 
     return render_template('login.html')
+
+def get_artists_by_filter(location, date):
+    response = users_table.scan(
+        FilterExpression=Attr('role').eq('artist') & 
+                         Attr('location').eq(location) & 
+                         Attr('available_dates').contains(date)
+    )
+    return response.get('Items', [])
 
 @app.route('/client_dashboard', methods=['GET', 'POST'])
 def client_dashboard():
