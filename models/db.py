@@ -1,6 +1,8 @@
 import boto3
 from boto3.dynamodb.conditions import Key
 from collections import Counter
+import uuid
+
 
 dynamodb = boto3.resource('dynamodb', region_name='us-east-1')  # or your region
 users_table = dynamodb.Table('Users')
