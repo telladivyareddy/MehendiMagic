@@ -85,6 +85,11 @@ def client_dashboard():
 
     return render_template('client_dashboard.html', user=session['user'], artists=artists, client_appointments=appointments)
 
+def get_queries_for_artist(artist_email):
+    response = queries_table.scan()
+    all_queries = response.get('Items', [])
+    artist_queries = [q for q in all_queries if q.get('artist_email') == artist_email]
+    return artist_queries
 
 @app.route('/artist_dashboard')
 def artist_dashboard():
