@@ -100,4 +100,27 @@
     {% endfor %}
 </table>
 
+<hr>
+
+<h3>💬 Your Queries to Artists</h3>
+{% if queries %}
+<table>
+    <tr>
+        <th>Artist Email</th>
+        <th>Your Question</th>
+        <th>Artist Reply</th>
+    </tr>
+    {% for query in queries %}
+    <tr>
+        <td>{{ query.artist_email }}</td>
+        <td>{{ query.message }}</td>
+        <td>{{ query.reply or "No reply yet" }}</td>
+    </tr>
+    {% endfor %}
+</table>
+{% else %}
+<p>You haven't asked any queries yet.</p>
+{% endif %}
+
 </body>
+</html>

@@ -10,7 +10,8 @@ from models.db import (
     get_appointments_for_client,
     appointments_table,
     queries_table,
-    users_table
+    users_table,
+    get_all_appointments
     
 )
 
