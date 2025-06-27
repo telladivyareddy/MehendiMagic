@@ -18,6 +18,8 @@ from models.sns import send_email_notification,send_booking_confirmation
 import uuid
 import hashlib
 from datetime import datetime
+from boto3.dynamodb.conditions import Attr
+
 
 
 app = Flask(__name__)
