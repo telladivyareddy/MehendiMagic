@@ -237,18 +237,18 @@ def ask_query():
     if 'user' not in session or session['user']['role'] != 'client':
         return redirect(url_for('login'))
 
-    query_id = str(uuid.uuid4())
-    client_email = session['user']['email']
     artist_email = request.form.get('artist_email')
     message = request.form.get('message')
-    timestamp = datetime.now().isoformat()
 
     print("🎯 artist_email:", artist_email)
     print("💬 message:", message)
 
     if not artist_email or not message:
-        print("⚠️ Missing data in query form submission.")
-        return "Bad Request: Missing artist_email or message", 400
+        return "⚠️ Missing artist_email or message", 400
+
+    query_id = str(uuid.uuid4())
+    client_email = session['user']['email']
+    timestamp = datetime.now().isoformat()
 
     queries_table.put_item(Item={
         'query_id': query_id,
@@ -260,6 +260,7 @@ def ask_query():
     })
 
     return redirect(url_for('client_dashboard'))
+
 
 
 @app.route('/reply_query', methods=['POST'])
