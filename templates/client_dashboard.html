@@ -67,7 +67,7 @@
                 </form>
             </td>
             <td>
-                <form method="POST" action="{{ url_for('ask_query') }}" target="_blank">
+                <form method="POST" action="{{ url_for('ask_query') }}">
                     <input type="hidden" name="artist_email" value="{{ artist.email }}">
                     <textarea name="message" placeholder="Type your query" rows="2" cols="20" required></textarea>
                     <button type="submit">Send</button>
