@@ -19,6 +19,9 @@
         .section {
             margin-top: 40px;
         }
+        form {
+            margin: 5px 0;
+        }
     </style>
 </head>
 <body>
@@ -61,12 +64,22 @@
                 </form>
             {% elif appointment.status == 'accepted' %}
                 <!-- Reschedule -->
-                <form method="POST" action="{{ url_for('reschedule') }}">
+                <form method="POST" action="{{ url_for('reschedule') }}" style="display:inline;">
                     <input type="hidden" name="appointment_id" value="{{ appointment.appointment_id }}">
                     <input type="date" name="new_date" required>
                     <input type="time" name="new_time" required>
                     <button type="submit">🔄 Reschedule</button>
                 </form>
+                <!-- Mark as Completed -->
+                <form method="POST" action="{{ url_for('update_status') }}" style="display:inline;">
+                    <input type="hidden" name="appointment_id" value="{{ appointment.appointment_id }}">
+                    <input type="hidden" name="new_status" value="completed">
+                    <button type="submit">✅ Mark as Done</button>
+                </form>
+            {% elif appointment.status == 'completed' %}
+                ✅ Service Completed
+            {% else %}
+                -
             {% endif %}
         </td>
     </tr>
@@ -77,8 +90,8 @@
 <div class="section">
     <h3>📆 Set Available Dates</h3>
     <form method="POST" action="{{ url_for('update_availability') }}">
-        <label>Select Dates:</label><br>
-        <input type="date" name="available_dates" required>
+        <label>Enter available dates (comma-separated):</label><br>
+        <input type="text" name="available_dates" placeholder="2025-06-25, 2025-06-28" required style="width: 80%;">
         <button type="submit">📌 Update Availability</button>
     </form>
 </div>
@@ -100,11 +113,15 @@
                 <td>{{ query.message }}</td>
                 <td>{{ query.reply or "No reply yet" }}</td>
                 <td>
+                    {% if not query.reply %}
                     <form method="POST" action="{{ url_for('reply_query') }}">
                         <input type="hidden" name="query_id" value="{{ query.query_id }}">
                         <input type="text" name="reply" placeholder="Your reply" required>
                         <button type="submit">Reply</button>
                     </form>
+                    {% else %}
+                        ✅
+                    {% endif %}
                 </td>
             </tr>
             {% endfor %}

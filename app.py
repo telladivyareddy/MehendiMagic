@@ -64,26 +64,32 @@ def login():
 
     return render_template('login.html')
 
-@app.route('/client_dashboard', methods=['GET'])
+@app.route('/client_dashboard', methods=['GET', 'POST'])
 def client_dashboard():
     if 'user' not in session or session['user']['role'] != 'client':
         return redirect(url_for('login'))
 
+    client_email = session['user']['email']
+
+    # Fetch client appointments (already done)
+    client_appointments = get_appointments_for_client(client_email)
+
+    # Fetch artists based on location/date filter
     location = request.args.get('location')
     date = request.args.get('date')
+    artists = get_artists_by_filter(location, date)
 
-    all_users = get_all_users()
-    artists = [u for u in all_users if u['role'] == 'artist']
+    # ✅ Fetch queries for this client
+    response = queries_table.scan()
+    all_queries = response.get('Items', [])
+    client_queries = [q for q in all_queries if q['client_email'] == client_email]
 
-    if location:
-        artists = [a for a in artists if a.get('location', '').lower() == location.lower()]
-    if date:
-        artists = [a for a in artists if 'available_dates' in a and date in a['available_dates']]
+    return render_template('client_dashboard.html',
+                           user=session['user'],
+                           client_appointments=client_appointments,
+                           artists=artists,
+                           queries=client_queries)
 
-    client_email = session['user']['email']
-    appointments = get_appointments_for_client(client_email)
-
-    return render_template('client_dashboard.html', user=session['user'], artists=artists, client_appointments=appointments)
 
 def get_queries_for_artist(artist_email):
     response = queries_table.scan()
